@@ -1,0 +1,507 @@
+openapi: 3.0.0
+info:
+  description: 'An API for looking at literature which cites a given protein version '
+  title: 'Protein Version Citation API '
+  version: 1.0.0
+servers:
+- description: SwaggerHub API Auto Mocking
+  url: https://virtserver.swaggerhub.com/MEGRETSON/ProteinVersionCitations/1.0.0
+- description: Primary url for protein citation database
+  url: https://megretson.com/proteincitations/v1
+paths:
+  /proteins:
+    get:
+      operationId: listProteins
+      parameters:
+      - description: How many items to return at one time (max 100)
+        explode: true
+        in: query
+        name: limit
+        required: false
+        schema:
+          format: int32
+          maximum: 100
+          type: integer
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PDB_Ids'
+          description: A paged array of proteins
+          headers:
+            x-next:
+              description: A link to the next page of responses
+              explode: false
+              schema:
+                type: string
+              style: simple
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: unexpected error
+      summary: List the pdb ids currently available in the database
+      tags:
+      - proteins
+      x-accepts:
+      - application/json
+      x-tags:
+      - tag: proteins
+    post:
+      operationId: createProtein
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Protein_Entry'
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Protein_Entry'
+          description: Null response
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: unexpected error
+      summary: Enter a new protein into the database
+      tags:
+      - protein
+      x-content-type: application/json
+      x-accepts:
+      - application/json
+      x-tags:
+      - tag: protein
+  /proteins/{pdb_id}:
+    get:
+      operationId: getProtein
+      parameters:
+      - description: the pdb id of interest
+        explode: false
+        in: path
+        name: pdb_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      - description: How many items to return at one time (max 100)
+        explode: true
+        in: query
+        name: limit
+        required: false
+        schema:
+          format: int32
+          maximum: 100
+          type: integer
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Protein_Entry'
+          description: A paged array of proteins
+          headers:
+            x-next:
+              description: A link to the next page of responses
+              explode: false
+              schema:
+                type: string
+              style: simple
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: unexpected error
+      summary: Get the  entry for this pdb_id
+      tags:
+      - proteins
+      x-accepts:
+      - application/json
+      x-tags:
+      - tag: proteins
+  /proteins/{pdb_id}/citations:
+    get:
+      operationId: getProteinCitations
+      parameters:
+      - description: the pdb id of interest
+        explode: false
+        in: path
+        name: pdb_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      - description: How many items to return at one time (max 100)
+        explode: true
+        in: query
+        name: limit
+        required: false
+        schema:
+          format: int32
+          maximum: 100
+          type: integer
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Citations'
+          description: A paged array of protein citations
+          headers:
+            x-next:
+              description: A link to the next page of responses
+              explode: false
+              schema:
+                type: string
+              style: simple
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: unexpected error
+      summary: Get the all citation entries for this pdb_id
+      tags:
+      - proteins
+      x-accepts:
+      - application/json
+      x-tags:
+      - tag: proteins
+  /proteins/{pdb_id}/versions/:
+    post:
+      operationId: createProteinVersion
+      parameters:
+      - description: the pdb id of interest
+        explode: false
+        in: path
+        name: pdb_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Protein_Entry'
+          description: An update protein entry with new version
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: unexpected error
+      summary: Create a new version of this pdb_id
+      tags:
+      - proteins
+      x-accepts:
+      - application/json
+      x-tags:
+      - tag: proteins
+  /proteins/{pdb_id}/versions/{version_number}/citations:
+    get:
+      operationId: getProteinCitationsByVersion
+      parameters:
+      - description: the pdb id of interest
+        explode: false
+        in: path
+        name: pdb_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      - description: the version_number of interest
+        explode: false
+        in: path
+        name: version_number
+        required: true
+        schema:
+          type: string
+        style: simple
+      - description: How many items to return at one time (max 100)
+        explode: true
+        in: query
+        name: limit
+        required: false
+        schema:
+          format: int32
+          maximum: 100
+          type: integer
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Citations'
+          description: A paged array of protein citations
+          headers:
+            x-next:
+              description: A link to the next page of responses
+              explode: false
+              schema:
+                type: string
+              style: simple
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: unexpected error
+      summary: Get the all citation entries for this pdb_id version
+      tags:
+      - proteins
+      x-accepts:
+      - application/json
+      x-tags:
+      - tag: proteins
+    post:
+      operationId: createProteinCitation
+      parameters:
+      - description: the pdb id of interest
+        explode: false
+        in: path
+        name: pdb_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      - description: the version_number of interest
+        explode: false
+        in: path
+        name: version_number
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Citation'
+          description: An new citation
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: unexpected error
+      summary: Enter a new protein citation
+      tags:
+      - proteins
+      x-accepts:
+      - application/json
+      x-tags:
+      - tag: proteins
+  /citations/{issn}:
+    get:
+      operationId: getProteinsCited
+      parameters:
+      - description: the issn of interest
+        explode: false
+        in: path
+        name: issn
+        required: true
+        schema:
+          type: string
+        style: simple
+      - description: How many items to return at one time (max 100)
+        explode: true
+        in: query
+        name: limit
+        required: false
+        schema:
+          format: int32
+          maximum: 100
+          type: integer
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Protein_Entry'
+          description: A paged array of proteins
+          headers:
+            x-next:
+              description: A link to the next page of responses
+              explode: false
+              schema:
+                type: string
+              style: simple
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: unexpected error
+      summary: Get all proteins cited by this article
+      tags:
+      - citation
+      x-accepts:
+      - application/json
+      x-tags:
+      - tag: citation
+components:
+  schemas:
+    PDB_Id:
+      type: string
+    PDB_Ids:
+      items:
+        $ref: '#/components/schemas/PDB_Id'
+      maxItems: 100
+      type: array
+    Protein_Entry:
+      example:
+        pdb_id: 0
+        versions:
+        - revision_type: revision_type
+          major_version: 6
+          revision_date: 2000-01-23
+          minor_version: 1
+        - revision_type: revision_type
+          major_version: 6
+          revision_date: 2000-01-23
+          minor_version: 1
+      properties:
+        pdb_id:
+          format: int64
+          type: integer
+        versions:
+          items:
+            $ref: '#/components/schemas/Version_Entry'
+          type: array
+      required:
+      - id
+      - versions
+      type: object
+    Version_Entry:
+      example:
+        revision_type: revision_type
+        major_version: 6
+        revision_date: 2000-01-23
+        minor_version: 1
+      properties:
+        major_version:
+          type: integer
+        minor_version:
+          type: integer
+        revision_type:
+          type: string
+        revision_date:
+          format: date
+          type: string
+      type: object
+    Citations:
+      items:
+        $ref: '#/components/schemas/Citation'
+      maxItems: 100
+      type: array
+    Citation:
+      example:
+        referenced_protein_id: referenced_protein_id
+        issn: issn
+        version_presumed: true
+        title: title
+        referenced_protein_version:
+          revision_type: revision_type
+          major_version: 6
+          revision_date: 2000-01-23
+          minor_version: 1
+        pmd_id: pmd_id
+        doi: doi
+        authors:
+        - last_name: last_name
+          contact_information:
+            email: email
+          first_name: first_name
+        - last_name: last_name
+          contact_information:
+            email: email
+          first_name: first_name
+      properties:
+        issn:
+          type: string
+        doi:
+          type: string
+        title:
+          type: string
+        pmd_id:
+          type: string
+        referenced_protein_id:
+          type: string
+        referenced_protein_version:
+          $ref: '#/components/schemas/Version_Entry'
+        authors:
+          items:
+            $ref: '#/components/schemas/Author'
+          type: array
+        version_presumed:
+          type: boolean
+      type: object
+    Author:
+      example:
+        last_name: last_name
+        contact_information:
+          email: email
+        first_name: first_name
+      properties:
+        first_name:
+          type: string
+        last_name:
+          type: string
+        contact_information:
+          $ref: '#/components/schemas/Contact_Information'
+      type: object
+    Contact_Information:
+      example:
+        email: email
+      properties:
+        email:
+          format: email
+          type: string
+      type: object
+    Pet:
+      properties:
+        id:
+          format: int64
+          type: integer
+        name:
+          type: string
+        tag:
+          type: string
+      required:
+      - id
+      - name
+      type: object
+    Pets:
+      items:
+        $ref: '#/components/schemas/Pet'
+      maxItems: 100
+      type: array
+    Error:
+      example:
+        code: 0
+        message: message
+      properties:
+        code:
+          format: int32
+          type: integer
+        message:
+          type: string
+      required:
+      - code
+      - message
+      type: object
