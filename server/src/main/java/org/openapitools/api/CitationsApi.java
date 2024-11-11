@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Map;
 import jakarta.annotation.Generated;
 
-@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2024-11-03T20:23:08.570069800-06:00[America/Chicago]", comments = "Generator version: 7.9.0")
+@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2024-11-11T16:39:38.427356300-06:00[America/Chicago]", comments = "Generator version: 7.9.0")
 @Validated
 @Tag(name = "citation", description = "the citation API")
 public interface CitationsApi {

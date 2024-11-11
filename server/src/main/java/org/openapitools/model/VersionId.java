@@ -2,7 +2,7 @@ package org.openapitools.model;
 
 import java.io.Serializable;
 
-public class  VersionId implements Serializable {
+public class VersionId implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -10,12 +10,11 @@ public class  VersionId implements Serializable {
 
     public Integer minorVersion;
 
-    public VersionId(Integer majorVersion, Integer minorVersion){
+    public VersionId(Integer majorVersion, Integer minorVersion) {
         this.majorVersion = majorVersion;
-        this.minorVersion = minorVersion; 
+        this.minorVersion = minorVersion;
     }
 
-    
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -45,5 +44,30 @@ public class  VersionId implements Serializable {
         } else if (!this.minorVersion.equals(other.minorVersion))
             return false;
         return true;
+    }
+
+    public static VersionId parseVersionString(String versionNumber) {
+        // Check if versionNumber is null or empty
+        if (versionNumber == null || versionNumber.isEmpty()) {
+            throw new IllegalArgumentException("versionNumber cannot be null or empty");
+        }
+
+        // Split the versionNumber string by "."
+        String[] parts = versionNumber.split("\\.");
+
+        // Check if the split parts length is exactly 2 (for x and y)
+        if (parts.length != 2) {
+            throw new IllegalArgumentException("versionNumber must be in the format 'x.y'");
+        }
+
+        try {
+            // Parse x and y as integers
+            int x = Integer.parseInt(parts[0]);
+            int y = Integer.parseInt(parts[1]);
+            return new VersionId(x, y);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Both x and y must be valid integers", e);
+        }
+
     }
 }

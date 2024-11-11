@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.Map;
 import jakarta.annotation.Generated;
 
-@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2024-11-03T20:23:08.570069800-06:00[America/Chicago]", comments = "Generator version: 7.9.0")
+@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2024-11-11T16:39:38.427356300-06:00[America/Chicago]", comments = "Generator version: 7.9.0")
 @Validated
 @Tag(name = "protein", description = "the protein API")
 public interface ProteinsApi {
@@ -78,6 +78,7 @@ public interface ProteinsApi {
      *
      * @param pdbId the pdb id of interest (required)
      * @param versionNumber the version_number of interest (required)
+     * @param citation  (required)
      * @return An new citation (status code 200)
      *         or unexpected error (status code 200)
      */
@@ -97,14 +98,16 @@ public interface ProteinsApi {
     @RequestMapping(
         method = RequestMethod.POST,
         value = "/proteins/{pdb_id}/versions/{version_number}/citations",
-        produces = { "application/json" }
+        produces = { "application/json" },
+        consumes = { "application/json" }
     )
     
     default ResponseEntity<Citation> createProteinCitation(
         @Parameter(name = "pdb_id", description = "the pdb id of interest", required = true, in = ParameterIn.PATH) @PathVariable("pdb_id") String pdbId,
-        @Parameter(name = "version_number", description = "the version_number of interest", required = true, in = ParameterIn.PATH) @PathVariable("version_number") String versionNumber
+        @Parameter(name = "version_number", description = "the version_number of interest", required = true, in = ParameterIn.PATH) @PathVariable("version_number") String versionNumber,
+        @Parameter(name = "Citation", description = "", required = true) @Valid @RequestBody Citation citation
     ) {
-        return getDelegate().createProteinCitation(pdbId, versionNumber);
+        return getDelegate().createProteinCitation(pdbId, versionNumber, citation);
     }
 
 

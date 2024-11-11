@@ -29,7 +29,7 @@ import jakarta.annotation.Generated;
 
 @Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2024-11-03T16:44:23.127559700-06:00[America/Chicago]", comments = "Generator version: 7.9.0")
 @Controller
-@RequestMapping("${openapi.proteinVersionCitation.base-path:/MEGRETSON/ProteinVersionCitations/1.0.0}")
+@RequestMapping("${openapi.proteinVersionCitation.base-path:/ProteinVersionCitations/1.0.0}")
 public class ProteinsApiController implements ProteinsApi {
 
     private final ProteinsApiDelegate delegate;

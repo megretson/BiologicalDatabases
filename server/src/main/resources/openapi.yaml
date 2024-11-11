@@ -285,6 +285,12 @@ paths:
         schema:
           type: string
         style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Citation'
+        required: true
       responses:
         "200":
           content:
@@ -301,6 +307,7 @@ paths:
       summary: Enter a new protein citation
       tags:
       - proteins
+      x-content-type: application/json
       x-accepts:
       - application/json
       x-tags:

@@ -18,22 +18,29 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.*;
 import jakarta.annotation.Generated;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
 
 /**
  * Citation
  */
-
+@Entity
 @Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2024-11-03T20:23:08.570069800-06:00[America/Chicago]", comments = "Generator version: 7.9.0")
 public class Citation {
 
   private String issn;
 
+  @Id
   private String doi;
 
   private String title;
 
   private String pmdId;
 
+  @ManyToOne
+  private ProteinEntry protein;
+  
   private String referencedProteinId;
 
   private VersionEntry referencedProteinVersion;

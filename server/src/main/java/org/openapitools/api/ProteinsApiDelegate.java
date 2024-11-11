@@ -20,7 +20,7 @@ import jakarta.annotation.Generated;
  * A delegate to be called by the {@link ProteinsApiController}}.
  * Implement this interface with a {@link org.springframework.stereotype.Service} annotated class.
  */
-@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2024-11-03T20:23:08.570069800-06:00[America/Chicago]", comments = "Generator version: 7.9.0")
+@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2024-11-11T16:39:38.427356300-06:00[America/Chicago]", comments = "Generator version: 7.9.0")
 public interface ProteinsApiDelegate {
 
     default Optional<NativeWebRequest> getRequest() {
@@ -59,12 +59,14 @@ public interface ProteinsApiDelegate {
      *
      * @param pdbId the pdb id of interest (required)
      * @param versionNumber the version_number of interest (required)
+     * @param citation  (required)
      * @return An new citation (status code 200)
      *         or unexpected error (status code 200)
      * @see ProteinsApi#createProteinCitation
      */
     default ResponseEntity<Citation> createProteinCitation(String pdbId,
-        String versionNumber) {
+        String versionNumber,
+        Citation citation) {
         getRequest().ifPresent(request -> {
             for (MediaType mediaType: MediaType.parseMediaTypes(request.getHeader("Accept"))) {
                 if (mediaType.isCompatibleWith(MediaType.valueOf("application/json"))) {
