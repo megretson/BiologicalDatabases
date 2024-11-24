@@ -14,12 +14,16 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.*;
 import jakarta.annotation.Generated;
+import jakarta.persistence.Embeddable;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
 
 /**
  * ContactInformation
  */
 
 @JsonTypeName("Contact_Information")
+@Embeddable
 @Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2024-11-03T20:23:08.570069800-06:00[America/Chicago]", comments = "Generator version: 7.9.0")
 public class ContactInformation {
 

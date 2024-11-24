@@ -14,38 +14,61 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import io.swagger.v3.oas.annotations.media.Schema;
 
-
 import java.util.*;
 import jakarta.annotation.Generated;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.IdClass;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 
 /**
  * VersionEntry
  */
 @Entity
 @JsonTypeName("Version_Entry")
-@IdClass(VersionId.class)
 @Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2024-11-03T20:23:08.570069800-06:00[America/Chicago]", comments = "Generator version: 7.9.0")
 public class VersionEntry {
 
   @Id
+  @GeneratedValue(strategy = GenerationType.AUTO)
+  private Integer id;
+
   private Integer majorVersion;
 
-  @Id
   private Integer minorVersion;
+
+  @JsonIgnore
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "pdbId", nullable = false)
+  private ProteinEntry protein;
 
   private String revisionType;
 
   @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
   private LocalDate revisionDate;
 
-  @JsonIgnore
-  @ManyToOne
-  private ProteinEntry protein; 
+  @OneToMany(mappedBy = "referencedProteinVersion", cascade = CascadeType.ALL, orphanRemoval = true)
+  private List<Citation> citations = new ArrayList<>();
 
+  public VersionEntry protein(ProteinEntry protein) {
+    this.protein = protein;
+    return this;
+  }
+
+  public ProteinEntry getProtein() {
+    return protein;
+  }
+
+  public void setProtein(ProteinEntry protein) {
+    this.protein = protein;
+  }
 
   public VersionEntry majorVersion(Integer majorVersion) {
     this.majorVersion = majorVersion;
@@ -54,9 +77,10 @@ public class VersionEntry {
 
   /**
    * Get majorVersion
+   * 
    * @return majorVersion
    */
-  
+
   @Schema(name = "major_version", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
   @JsonProperty("major_version")
   public Integer getMajorVersion() {
@@ -74,9 +98,10 @@ public class VersionEntry {
 
   /**
    * Get minorVersion
+   * 
    * @return minorVersion
    */
-  
+
   @Schema(name = "minor_version", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
   @JsonProperty("minor_version")
   public Integer getMinorVersion() {
@@ -94,9 +119,10 @@ public class VersionEntry {
 
   /**
    * Get revisionType
+   * 
    * @return revisionType
    */
-  
+
   @Schema(name = "revision_type", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
   @JsonProperty("revision_type")
   public String getRevisionType() {
@@ -114,9 +140,10 @@ public class VersionEntry {
 
   /**
    * Get revisionDate
+   * 
    * @return revisionDate
    */
-  @Valid 
+  @Valid
   @Schema(name = "revision_date", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
   @JsonProperty("revision_date")
   public LocalDate getRevisionDate() {
@@ -151,6 +178,9 @@ public class VersionEntry {
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class VersionEntry {\n");
+    if (protein != null) {
+      sb.append("    Protein: ").append(toIndentedString(protein.getPdbId())).append("\n");
+    }
     sb.append("    majorVersion: ").append(toIndentedString(majorVersion)).append("\n");
     sb.append("    minorVersion: ").append(toIndentedString(minorVersion)).append("\n");
     sb.append("    revisionType: ").append(toIndentedString(revisionType)).append("\n");
@@ -169,5 +199,5 @@ public class VersionEntry {
     }
     return o.toString().replace("\n", "\n    ");
   }
-}
 
+}

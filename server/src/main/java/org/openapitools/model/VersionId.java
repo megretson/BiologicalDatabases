@@ -2,13 +2,19 @@ package org.openapitools.model;
 
 import java.io.Serializable;
 
+import jakarta.persistence.Entity;
+
 public class VersionId implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
+
     public Integer majorVersion;
 
     public Integer minorVersion;
+
+    public VersionId() {
+    }
 
     public VersionId(Integer majorVersion, Integer minorVersion) {
         this.majorVersion = majorVersion;

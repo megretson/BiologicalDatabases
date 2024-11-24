@@ -18,6 +18,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.*;
 import jakarta.annotation.Generated;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
@@ -34,7 +35,7 @@ public class ProteinEntry {
   private String pdbId;
 
   @Valid
-  @OneToMany(mappedBy="protein")
+  @OneToMany(mappedBy="protein", cascade=CascadeType.ALL, orphanRemoval = true)
   private List<@Valid VersionEntry> versions = new ArrayList<>();
 
   public ProteinEntry() {

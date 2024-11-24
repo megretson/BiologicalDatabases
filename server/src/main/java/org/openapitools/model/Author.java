@@ -11,22 +11,44 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import io.swagger.v3.oas.annotations.media.Schema;
 
-
 import java.util.*;
 import jakarta.annotation.Generated;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToOne;
 
 /**
  * Author
  */
-
+@Entity
 @Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2024-11-03T20:23:08.570069800-06:00[America/Chicago]", comments = "Generator version: 7.9.0")
 public class Author {
+
+  @Id
+  @GeneratedValue(strategy = GenerationType.AUTO)
+  private String id;
 
   private String firstName;
 
   private String lastName;
 
+  @Embedded
   private ContactInformation contactInformation;
+
+  @ManyToMany
+  @JoinTable(
+          name = "author_citation", // Name of the join table
+          joinColumns = @JoinColumn(name = "id"), // Column in the join table that references Author
+          inverseJoinColumns = @JoinColumn(name = "doi") // Column in the join table that references Citation
+  )
+  private Set<@Valid Citation> citations = new HashSet<>();
 
   public Author firstName(String firstName) {
     this.firstName = firstName;
@@ -35,9 +57,10 @@ public class Author {
 
   /**
    * Get firstName
+   * 
    * @return firstName
    */
-  
+
   @Schema(name = "first_name", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
   @JsonProperty("first_name")
   public String getFirstName() {
@@ -55,9 +78,10 @@ public class Author {
 
   /**
    * Get lastName
+   * 
    * @return lastName
    */
-  
+
   @Schema(name = "last_name", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
   @JsonProperty("last_name")
   public String getLastName() {
@@ -75,9 +99,10 @@ public class Author {
 
   /**
    * Get contactInformation
+   * 
    * @return contactInformation
    */
-  @Valid 
+  @Valid
   @Schema(name = "contact_information", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
   @JsonProperty("contact_information")
   public ContactInformation getContactInformation() {
@@ -129,4 +154,3 @@ public class Author {
     return o.toString().replace("\n", "\n    ");
   }
 }
-

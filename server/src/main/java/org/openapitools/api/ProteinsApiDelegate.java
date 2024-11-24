@@ -3,6 +3,7 @@ package org.openapitools.api;
 import org.openapitools.model.Citation;
 import org.openapitools.model.Error;
 import org.openapitools.model.ProteinEntry;
+import org.openapitools.model.VersionEntry;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -93,7 +94,7 @@ public interface ProteinsApiDelegate {
      *         or unexpected error (status code 200)
      * @see ProteinsApi#createProteinVersion
      */
-    default ResponseEntity<ProteinEntry> createProteinVersion(String pdbId) {
+    default ResponseEntity<ProteinEntry> createProteinVersion(String pdbId, VersionEntry version) {
         getRequest().ifPresent(request -> {
             for (MediaType mediaType: MediaType.parseMediaTypes(request.getHeader("Accept"))) {
                 if (mediaType.isCompatibleWith(MediaType.valueOf("application/json"))) {

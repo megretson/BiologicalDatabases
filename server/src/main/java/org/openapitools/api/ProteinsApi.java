@@ -8,6 +8,8 @@ package org.openapitools.api;
 import org.openapitools.model.Citation;
 import org.openapitools.model.Error;
 import org.openapitools.model.ProteinEntry;
+import org.openapitools.model.VersionEntry;
+
 import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -138,9 +140,11 @@ public interface ProteinsApi {
     )
     
     default ResponseEntity<ProteinEntry> createProteinVersion(
-        @Parameter(name = "pdb_id", description = "the pdb id of interest", required = true, in = ParameterIn.PATH) @PathVariable("pdb_id") String pdbId
+        @Parameter(name = "pdb_id", description = "the pdb id of interest", required = true, in = ParameterIn.PATH) @PathVariable("pdb_id") String pdbId,
+        @Parameter(name = "version", description = "", required = true) @Valid @RequestBody VersionEntry version
+
     ) {
-        return getDelegate().createProteinVersion(pdbId);
+        return getDelegate().createProteinVersion(pdbId, version);
     }
 
 

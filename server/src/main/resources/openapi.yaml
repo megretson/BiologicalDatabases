@@ -189,6 +189,12 @@ paths:
         schema:
           type: string
         style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Version_Entry'
+        required: true
       responses:
         "200":
           content:

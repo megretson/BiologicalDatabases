@@ -6,13 +6,19 @@ import org.openapitools.model.Citation;
 import org.openapitools.model.ProteinEntry;
 import org.openapitools.model.VersionEntry;
 import org.openapitools.model.VersionId;
+import org.openapitools.repository.CitationRepository;
 import org.openapitools.repository.ProteinRepository;
+import org.openapitools.repository.VersionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
+
+import com.fasterxml.jackson.core.Version;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
@@ -23,6 +29,12 @@ public class ProteinsApiDelegateImpl implements ProteinsApiDelegate {
 
     @Autowired
     private ProteinRepository proteinRepo;
+
+    @Autowired
+    private CitationRepository citationRepo;
+
+    @Autowired
+    private VersionRepository versionRepo;
 
     private static final Logger LOGGER = Logger.getLogger(ProteinsApiDelegateImpl.class.getName());
 
@@ -37,6 +49,15 @@ public class ProteinsApiDelegateImpl implements ProteinsApiDelegate {
     public ResponseEntity<ProteinEntry> createProtein(ProteinEntry proteinEntry) {
         LOGGER.log(Level.INFO, "Setting up protein object");
         LOGGER.log(Level.INFO, proteinEntry.toString());
+        List<VersionEntry> versions = proteinEntry.getVersions();
+        // proteinEntry.setVersions(null);
+
+        for (VersionEntry version : versions) {
+            version.setProtein(proteinEntry);
+            LOGGER.log(Level.INFO, "Saving Version");
+            LOGGER.log(Level.INFO, version.toString());
+            // versionRepo.save(version);
+        }
         ProteinEntry protein = proteinRepo.save(proteinEntry);
         return ResponseEntity.ok(protein);
     }
@@ -56,25 +77,37 @@ public class ProteinsApiDelegateImpl implements ProteinsApiDelegate {
             String versionNumber,
             Citation citation) {
 
-        Optional<ProteinEntry> fetchedProtein = proteinRepo.findById(pdbId); 
-        if (fetchedProtein.isEmpty()){
+        // Optional<ProteinEntry> fetchedProtein = proteinRepo.findById(pdbId);
+        // if (fetchedProtein.isEmpty()) {
+        //     return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        // }
+        // ProteinEntry protein = fetchedProtein.get();
+        // VersionId version = VersionId.parseVersionString(versionNumber);
+        // List<VersionEntry> versions = protein.getVersions();
+        // boolean found = false;
+        // for (VersionEntry v : versions) {
+        //     if (v.getMajorVersion() == version.majorVersion && v.getMinorVersion() == version.minorVersion) {
+        //         found = true;
+        //     }
+        // }
+        // if (!found) {
+        //     return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        // }
+        Optional<ProteinEntry> fetchedProtein = proteinRepo.findById(pdbId);
+        if (fetchedProtein.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        ProteinEntry protein = fetchedProtein.get(); 
-        VersionId version = VersionId.parseVersionString(versionNumber); 
-        List<VersionEntry> versions = protein.getVersions(); 
-        boolean found = false; 
-        for (VersionEntry v : versions){
-            if (v.getMajorVersion() == version.majorVersion && v.getMinorVersion() == version.minorVersion){
-                found = true; 
-            }
-        }
-        if (!found){
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        ProteinEntry protein = fetchedProtein.get();
+        VersionId versionString = VersionId.parseVersionString(versionNumber);
+        VersionEntry version = versionRepo.findByProteinAndMajorVersionAndMinorVersion(protein, versionString.majorVersion, versionString.minorVersion); 
 
-        Citation citation = proteinRepo.save(citation);
-        return ResponseEntity.ok(citation);
+        LOGGER.info(version.toString());
+
+        citation.setReferencedProteinVersion(version);
+        citation.setReferencedProteinId(protein);
+
+        Citation savedCitation = citationRepo.save(citation);
+        return ResponseEntity.ok(savedCitation);
 
     }
 
@@ -86,9 +119,20 @@ public class ProteinsApiDelegateImpl implements ProteinsApiDelegate {
      *         or unexpected error (status code 200)
      * @see ProteinsApi#createProteinVersion
      */
-    public ResponseEntity<ProteinEntry> createProteinVersion(String pdbId) {
-        // TODO
-        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+    public ResponseEntity<ProteinEntry> createProteinVersion(String pdbId, VersionEntry version) {
+        Optional<ProteinEntry> fetchedProtein = proteinRepo.findById(pdbId);
+        if (fetchedProtein.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        ProteinEntry protein = fetchedProtein.get();
+        version.setProtein(protein);
+        protein.addVersionsItem(version);
+        LOGGER.log(Level.INFO, "Creating protein version");
+        LOGGER.log(Level.INFO, version.toString());
+        ProteinEntry savedProtein = proteinRepo.save(protein);
+        // version.setProtein(savedProtein);
+        // VersionEntry savedVersion = versionRepo.save(version);
+        return ResponseEntity.ok(savedProtein);
 
     }
 
@@ -103,9 +147,14 @@ public class ProteinsApiDelegateImpl implements ProteinsApiDelegate {
      */
     public ResponseEntity<ProteinEntry> getProtein(String pdbId,
             Integer limit) {
-        // TODO
-        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
-
+        Optional<ProteinEntry> fetchedProtein = proteinRepo.findById(pdbId);
+        if (fetchedProtein.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        ProteinEntry protein = fetchedProtein.get();
+        List<VersionEntry> fetchedVersions = versionRepo.findByProtein(protein);
+        protein.setVersions(fetchedVersions);
+        return ResponseEntity.ok(protein);
     }
 
     /**
@@ -120,9 +169,8 @@ public class ProteinsApiDelegateImpl implements ProteinsApiDelegate {
      */
     public ResponseEntity<List<Citation>> getProteinCitations(String pdbId,
             Integer limit) {
-        // TODO
-        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
-
+        List<Citation> citations = citationRepo.findAll();
+        return ResponseEntity.ok(citations);
     }
 
     /**
@@ -140,8 +188,21 @@ public class ProteinsApiDelegateImpl implements ProteinsApiDelegate {
     public ResponseEntity<List<Citation>> getProteinCitationsByVersion(String pdbId,
             String versionNumber,
             Integer limit) {
-        // TODO
-        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+        // TODO: implement an actual method comme ca:
+        // https://www.baeldung.com/spring-data-jpa-find-by-vs-find-all-by
+
+        Optional<ProteinEntry> fetchedProtein = proteinRepo.findById(pdbId);
+        if (fetchedProtein.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        ProteinEntry protein = fetchedProtein.get();
+        VersionId versionString = VersionId.parseVersionString(versionNumber);
+        VersionEntry version = versionRepo.findByProteinAndMajorVersionAndMinorVersion(protein, versionString.majorVersion, versionString.minorVersion); 
+
+        LOGGER.info(version.toString());
+
+        List<Citation> citations = citationRepo.findAllByProteinAndVersion(protein, version);
+        return ResponseEntity.ok(citations);
 
     }
 
@@ -154,8 +215,12 @@ public class ProteinsApiDelegateImpl implements ProteinsApiDelegate {
      * @see ProteinsApi#listProteins
      */
     public ResponseEntity<List<String>> listProteins(Integer limit) {
-        // TODO
-        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+        List<String> idsList = new ArrayList<>();
+        List<ProteinEntry> proteins = proteinRepo.findAll();
+        for (ProteinEntry p : proteins) {
+            idsList.add(p.getPdbId());
+        }
+        return ResponseEntity.ok(idsList);
 
     }
 

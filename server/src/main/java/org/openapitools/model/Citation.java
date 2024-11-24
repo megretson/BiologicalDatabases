@@ -15,11 +15,14 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import io.swagger.v3.oas.annotations.media.Schema;
 
-
 import java.util.*;
 import jakarta.annotation.Generated;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinColumns;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 
 /**
@@ -39,14 +42,17 @@ public class Citation {
   private String pmdId;
 
   @ManyToOne
-  private ProteinEntry protein;
-  
-  private String referencedProteinId;
+  @JoinColumn(name = "pdbId")
+  private ProteinEntry referencedProteinId;
 
+  @ManyToOne
+  @JoinColumns({
+      @JoinColumn(name = "major_version", referencedColumnName = "majorVersion"),
+      @JoinColumn(name = "minor_version", referencedColumnName = "minorVersion") })
   private VersionEntry referencedProteinVersion;
 
-  @Valid
-  private List<@Valid Author> authors = new ArrayList<>();
+  @ManyToMany(mappedBy = "citations")
+  private Set<@Valid Author> authors = new HashSet<>();
 
   private Boolean versionPresumed;
 
@@ -57,9 +63,10 @@ public class Citation {
 
   /**
    * Get issn
+   * 
    * @return issn
    */
-  
+
   @Schema(name = "issn", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
   @JsonProperty("issn")
   public String getIssn() {
@@ -77,9 +84,10 @@ public class Citation {
 
   /**
    * Get doi
+   * 
    * @return doi
    */
-  
+
   @Schema(name = "doi", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
   @JsonProperty("doi")
   public String getDoi() {
@@ -97,9 +105,10 @@ public class Citation {
 
   /**
    * Get title
+   * 
    * @return title
    */
-  
+
   @Schema(name = "title", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
   @JsonProperty("title")
   public String getTitle() {
@@ -117,9 +126,10 @@ public class Citation {
 
   /**
    * Get pmdId
+   * 
    * @return pmdId
    */
-  
+
   @Schema(name = "pmd_id", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
   @JsonProperty("pmd_id")
   public String getPmdId() {
@@ -130,23 +140,24 @@ public class Citation {
     this.pmdId = pmdId;
   }
 
-  public Citation referencedProteinId(String referencedProteinId) {
+  public Citation referencedProteinId(ProteinEntry referencedProteinId) {
     this.referencedProteinId = referencedProteinId;
     return this;
   }
 
   /**
    * Get referencedProteinId
+   * 
    * @return referencedProteinId
    */
-  
+
   @Schema(name = "referenced_protein_id", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
   @JsonProperty("referenced_protein_id")
-  public String getReferencedProteinId() {
+  public ProteinEntry getReferencedProteinId() {
     return referencedProteinId;
   }
 
-  public void setReferencedProteinId(String referencedProteinId) {
+  public void setReferencedProteinId(ProteinEntry referencedProteinId) {
     this.referencedProteinId = referencedProteinId;
   }
 
@@ -157,9 +168,10 @@ public class Citation {
 
   /**
    * Get referencedProteinVersion
+   * 
    * @return referencedProteinVersion
    */
-  @Valid 
+  @Valid
   @Schema(name = "referenced_protein_version", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
   @JsonProperty("referenced_protein_version")
   public VersionEntry getReferencedProteinVersion() {
@@ -170,14 +182,14 @@ public class Citation {
     this.referencedProteinVersion = referencedProteinVersion;
   }
 
-  public Citation authors(List<@Valid Author> authors) {
+  public Citation authors(Set<@Valid Author> authors) {
     this.authors = authors;
     return this;
   }
 
   public Citation addAuthorsItem(Author authorsItem) {
     if (this.authors == null) {
-      this.authors = new ArrayList<>();
+      this.authors = new HashSet<>();
     }
     this.authors.add(authorsItem);
     return this;
@@ -185,16 +197,17 @@ public class Citation {
 
   /**
    * Get authors
+   * 
    * @return authors
    */
-  @Valid 
+  @Valid
   @Schema(name = "authors", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
   @JsonProperty("authors")
-  public List<@Valid Author> getAuthors() {
+  public Set<@Valid Author> getAuthors() {
     return authors;
   }
 
-  public void setAuthors(List<@Valid Author> authors) {
+  public void setAuthors(Set<@Valid Author> authors) {
     this.authors = authors;
   }
 
@@ -205,9 +218,10 @@ public class Citation {
 
   /**
    * Get versionPresumed
+   * 
    * @return versionPresumed
    */
-  
+
   @Schema(name = "version_presumed", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
   @JsonProperty("version_presumed")
   public Boolean getVersionPresumed() {
@@ -239,7 +253,8 @@ public class Citation {
 
   @Override
   public int hashCode() {
-    return Objects.hash(issn, doi, title, pmdId, referencedProteinId, referencedProteinVersion, authors, versionPresumed);
+    return Objects.hash(issn, doi, title, pmdId, referencedProteinId, referencedProteinVersion, authors,
+        versionPresumed);
   }
 
   @Override
@@ -269,4 +284,3 @@ public class Citation {
     return o.toString().replace("\n", "\n    ");
   }
 }
-
