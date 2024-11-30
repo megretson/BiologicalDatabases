@@ -175,6 +175,7 @@ paths:
           required: true
           schema:
             type: string
+      
       responses:
         '200':
           description: An update protein entry with new version 

@@ -56,6 +56,51 @@ public class Citation {
 
   private Boolean versionPresumed;
 
+  private String publisher;
+
+  private String publisherUrl; 
+
+  private String publisherEmail; 
+
+  public Citation publisher(String publisher){
+    this.publisher = publisher;
+    return this;
+  }
+
+  public void setPublisher(String publisher){
+    this.publisher = publisher; 
+  }
+
+  public String getPublisher( ){
+    return this.publisher; 
+  }
+
+  public Citation publisherUrl(String publisher){
+    this.publisherUrl = publisher;
+    return this;
+  }
+
+  public void setPublisherUrl(String publisher){
+    this.publisherUrl = publisher; 
+  }
+
+  public String getPublisherUrl( ){
+    return this.publisherUrl; 
+  }
+
+  public Citation publisherEmail(String publisher){
+    this.publisherEmail = publisher;
+    return this;
+  }
+
+  public void setPublisherEmail(String publisher){
+    this.publisherEmail = publisher; 
+  }
+
+  public String getPublisherEmail( ){
+    return this.publisherEmail; 
+  }
+
   public Citation issn(String issn) {
     this.issn = issn;
     return this;

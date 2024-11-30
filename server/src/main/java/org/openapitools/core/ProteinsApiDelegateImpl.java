@@ -201,7 +201,7 @@ public class ProteinsApiDelegateImpl implements ProteinsApiDelegate {
 
         LOGGER.info(version.toString());
 
-        List<Citation> citations = citationRepo.findAllByProteinAndVersion(protein, version);
+        List<Citation> citations = citationRepo.findAllByReferencedProteinVersionAndReferencedProteinVersion(protein, version);
         return ResponseEntity.ok(citations);
 
     }

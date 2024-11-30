@@ -360,6 +360,12 @@ components:
             $ref: "#/components/schemas/Author"
         version_presumed:
           type: boolean 
+        publisher:
+          type: string
+        publisher_url:
+          type: string
+        publisher_email:
+          type: string
     Author:
       type: object
       properties:

@@ -435,6 +435,9 @@ components:
           minor_version: 1
         pmd_id: pmd_id
         doi: doi
+        publisher: nature
+        publisher_url: https://www.nature.com/
+        publisher_email: exampleeditor@nature.com
         authors:
         - last_name: last_name
           contact_information:
@@ -463,6 +466,12 @@ components:
           type: array
         version_presumed:
           type: boolean
+        publisher:
+          type: string
+        publisher_url:
+          type: string
+        publisher_email:
+          type: string
       type: object
     Author:
       example:
@@ -486,24 +495,6 @@ components:
           format: email
           type: string
       type: object
-    Pet:
-      properties:
-        id:
-          format: int64
-          type: integer
-        name:
-          type: string
-        tag:
-          type: string
-      required:
-      - id
-      - name
-      type: object
-    Pets:
-      items:
-        $ref: '#/components/schemas/Pet'
-      maxItems: 100
-      type: array
     Error:
       example:
         code: 0

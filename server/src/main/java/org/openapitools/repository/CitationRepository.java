@@ -23,6 +23,6 @@ public interface CitationRepository extends JpaRepository<Citation, String> {
 
         // List<ProteinEntry> fetchProteinEntries();
 
-        List<Citation> findAllByProteinAndVersion(ProteinEntry protein, VersionEntry version); 
+        List<Citation> findAllByReferencedProteinVersionAndReferencedProteinVersion(ProteinEntry protein, VersionEntry version); 
 
 }
