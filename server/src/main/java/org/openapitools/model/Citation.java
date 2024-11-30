@@ -46,9 +46,7 @@ public class Citation {
   private ProteinEntry referencedProteinId;
 
   @ManyToOne
-  @JoinColumns({
-      @JoinColumn(name = "major_version", referencedColumnName = "majorVersion"),
-      @JoinColumn(name = "minor_version", referencedColumnName = "minorVersion") })
+  @JoinColumn(name = "id")
   private VersionEntry referencedProteinVersion;
 
   @ManyToMany(mappedBy = "citations")

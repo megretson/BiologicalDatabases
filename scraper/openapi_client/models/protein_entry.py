@@ -17,7 +17,7 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, StrictInt
+from pydantic import BaseModel, ConfigDict, StrictInt, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
 from openapi_client.models.version_entry import VersionEntry
 from typing import Optional, Set
@@ -27,7 +27,7 @@ class ProteinEntry(BaseModel):
     """
     ProteinEntry
     """ # noqa: E501
-    pdb_id: Optional[StrictInt] = None
+    pdb_id: Optional[StrictStr] = None
     versions: List[VersionEntry]
     __properties: ClassVar[List[str]] = ["pdb_id", "versions"]
 

@@ -4,6 +4,9 @@ from dateutil import parser
 from bs4 import BeautifulSoup
 
 
+LIMIT_CITATIONS = True
+
+
 class CrossRefRecord:
 
     def __init__(self, title, doi, issn, pubmed_id, pdb_id, protein_common_name, created_date, publisher, publisher_url) -> None:
@@ -88,11 +91,18 @@ class CrossRefRecord:
         protein_common_name_data = name_response.json()
         results = []
 
+        common_name_results = protein_common_name_data.get('message', {}).get('items', [])
+        id_results = pdb_id_data.get('message', {}).get('items', [])
+
+        if LIMIT_CITATIONS:
+            common_name_results = common_name_results[:5]
+            id_results = id_results[:5]
+
         # Parse each item in the results
-        for item in pdb_id_data.get('message', {}).get('items', []):
+        for item in common_name_results:
             CrossRefRecord.create_record_from_crossref_response(
                 pdb_id, protein_common_name, results, item)
-        for item in protein_common_name_data.get('message', {}).get('items', []):
+        for item in id_results:
             CrossRefRecord.create_record_from_crossref_response(
                 pdb_id, protein_common_name, results, item)
         return results

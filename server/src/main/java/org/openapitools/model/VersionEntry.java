@@ -27,6 +27,12 @@ import jakarta.persistence.IdClass;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.PostLoad;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.Transient;
+
+import org.springframework.data.domain.Persistable;
+
 
 /**
  * VersionEntry
@@ -34,15 +40,17 @@ import jakarta.persistence.OneToMany;
 @Entity
 @JsonTypeName("Version_Entry")
 @Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2024-11-03T20:23:08.570069800-06:00[America/Chicago]", comments = "Generator version: 7.9.0")
-public class VersionEntry {
+public class VersionEntry  implements Persistable<String> {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.AUTO)
-  private Integer id;
+  private String id;
 
   private Integer majorVersion;
 
   private Integer minorVersion;
+
+  @Transient
+  private boolean update;
 
   @JsonIgnore
   @ManyToOne(fetch = FetchType.LAZY)
@@ -54,7 +62,7 @@ public class VersionEntry {
   @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
   private LocalDate revisionDate;
 
-  @OneToMany(mappedBy = "referencedProteinVersion", cascade = CascadeType.ALL, orphanRemoval = true)
+  @OneToMany(mappedBy = "referencedProteinVersion")
   private List<Citation> citations = new ArrayList<>();
 
   public VersionEntry protein(ProteinEntry protein) {
@@ -180,6 +188,9 @@ public class VersionEntry {
     sb.append("class VersionEntry {\n");
     if (protein != null) {
       sb.append("    Protein: ").append(toIndentedString(protein.getPdbId())).append("\n");
+      sb.append("    Id: ").append(toIndentedString(id)).append("\n");
+      sb.append("    Is New: ").append(toIndentedString(isNew())).append("\n");
+
     }
     sb.append("    majorVersion: ").append(toIndentedString(majorVersion)).append("\n");
     sb.append("    minorVersion: ").append(toIndentedString(minorVersion)).append("\n");
@@ -200,4 +211,33 @@ public class VersionEntry {
     return o.toString().replace("\n", "\n    ");
   }
 
+  public String generateId(){
+    this.id = String.format("%s_%d_%d", this.protein.getPdbId(), this.majorVersion, this.minorVersion); 
+    return this.id; 
+  }
+
+  public boolean isUpdate() {
+    return this.update;
+  }
+
+  public void setUpdate(boolean update) {
+    this.update = update;
+  }
+
+  @Override
+  public boolean isNew() {
+    return !this.update;
+  }
+
+  @PrePersist
+  @PostLoad
+  void markUpdated() {
+    this.update = true;
+  }
+
+  @Override
+  public String getId() {
+    return this.id;
+  }
 }
+

@@ -270,6 +270,7 @@ class ApiClient:
 
         try:
             # perform request and return response
+            print(f"Url is {url}")
             response_data = self.rest_client.request(
                 method, url,
                 headers=header_params,

@@ -47,19 +47,57 @@ public class ProteinsApiDelegateImpl implements ProteinsApiDelegate {
      * @see ProteinsApi#createProtein
      */
     public ResponseEntity<ProteinEntry> createProtein(ProteinEntry proteinEntry) {
+
+
         LOGGER.log(Level.INFO, "Setting up protein object");
         LOGGER.log(Level.INFO, proteinEntry.toString());
         List<VersionEntry> versions = proteinEntry.getVersions();
-        // proteinEntry.setVersions(null);
-
         for (VersionEntry version : versions) {
             version.setProtein(proteinEntry);
-            LOGGER.log(Level.INFO, "Saving Version");
-            LOGGER.log(Level.INFO, version.toString());
-            // versionRepo.save(version);
+            version.generateId(); 
         }
-        ProteinEntry protein = proteinRepo.save(proteinEntry);
+        LOGGER.log(Level.INFO, proteinEntry.toString());
+        ProteinEntry protein = proteinRepo.saveAndFlush(proteinEntry);
         return ResponseEntity.ok(protein);
+
+
+        // proteinEntry.setVersions(new ArrayList<VersionEntry>());
+        // ProteinEntry protein = proteinRepo.save(proteinEntry);
+        // for (VersionEntry version : versions) {
+        //     version.setProtein(proteinEntry);
+        //     version.generateId(); 
+        //     LOGGER.log(Level.INFO, "Saving Version");
+        //     LOGGER.log(Level.INFO, version.toString());
+        //     versionRepo.saveAndFlush(version);
+        //     // try {
+        //     //     versionRepo.save(version);
+        //     // } catch (Exception e) {
+        //     //     LOGGER.log(Level.INFO, e.getMessage());
+        //     //     continue; 
+        //     // }
+            
+        // }
+        // protein.setVersions(versions);
+        // LOGGER.log(Level.INFO, proteinEntry.toString());
+        
+        // protein = proteinRepo.saveAndFlush(proteinEntry);
+        // return ResponseEntity.ok(protein);
+
+        // LOGGER.log(Level.INFO, "Setting up protein object");
+        // List<VersionEntry> versions = proteinEntry.getVersions();
+        // proteinEntry.setVersions(new ArrayList<VersionEntry>());
+        // proteinRepo.save(proteinEntry);
+        // for (VersionEntry version : versions) {
+        //     version.setProtein(proteinEntry);
+        //     // version.generateId(); 
+        //     LOGGER.log(Level.INFO, "Saving Version");
+        //     LOGGER.log(Level.INFO, version.toString());
+        //     versionRepo.save(version);
+        // }
+        // LOGGER.log(Level.INFO, proteinEntry.toString());
+        // proteinEntry.setVersions(versions);
+        // ProteinEntry protein = proteinRepo.save(proteinEntry);
+        // return ResponseEntity.ok(protein);
     }
 
     /**
@@ -77,22 +115,6 @@ public class ProteinsApiDelegateImpl implements ProteinsApiDelegate {
             String versionNumber,
             Citation citation) {
 
-        // Optional<ProteinEntry> fetchedProtein = proteinRepo.findById(pdbId);
-        // if (fetchedProtein.isEmpty()) {
-        //     return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        // }
-        // ProteinEntry protein = fetchedProtein.get();
-        // VersionId version = VersionId.parseVersionString(versionNumber);
-        // List<VersionEntry> versions = protein.getVersions();
-        // boolean found = false;
-        // for (VersionEntry v : versions) {
-        //     if (v.getMajorVersion() == version.majorVersion && v.getMinorVersion() == version.minorVersion) {
-        //         found = true;
-        //     }
-        // }
-        // if (!found) {
-        //     return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        // }
         Optional<ProteinEntry> fetchedProtein = proteinRepo.findById(pdbId);
         if (fetchedProtein.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -125,13 +147,15 @@ public class ProteinsApiDelegateImpl implements ProteinsApiDelegate {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         ProteinEntry protein = fetchedProtein.get();
+        LOGGER.info(version.toString());
         version.setProtein(protein);
+        version.generateId();
+        versionRepo.save(version); 
         protein.addVersionsItem(version);
         LOGGER.log(Level.INFO, "Creating protein version");
         LOGGER.log(Level.INFO, version.toString());
         ProteinEntry savedProtein = proteinRepo.save(protein);
-        // version.setProtein(savedProtein);
-        // VersionEntry savedVersion = versionRepo.save(version);
+
         return ResponseEntity.ok(savedProtein);
 
     }
@@ -152,7 +176,9 @@ public class ProteinsApiDelegateImpl implements ProteinsApiDelegate {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         ProteinEntry protein = fetchedProtein.get();
+        LOGGER.log(Level.INFO, protein.toString());
         List<VersionEntry> fetchedVersions = versionRepo.findByProtein(protein);
+        LOGGER.log(Level.INFO, fetchedVersions.toString());
         protein.setVersions(fetchedVersions);
         return ResponseEntity.ok(protein);
     }

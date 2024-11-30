@@ -1,8 +1,9 @@
 from __future__ import print_function
 import sqlite3
-import time
-import swagger_client
-from swagger_client.rest import ApiException
+from openapi_client.models.version_entry import VersionEntry
+import openapi_client
+from openapi_client.rest import ApiException
+from openapi_client.models.protein_entry import ProteinEntry
 from pprint import pprint
 from records.pubmed_record import PubMedRecord
 from records.uniprot_record import UniProtRecord
@@ -11,6 +12,12 @@ import requests
 from datetime import datetime
 from dateutil import parser
 import os
+
+
+database_url = "http://localhost:8080/ProteinVersionCitations/1.0.0"
+configuration = openapi_client.Configuration(
+    host = database_url
+)
 # To start with, my proteins of interest will be read in from my old homework database 
 
 def main():
@@ -18,6 +25,7 @@ def main():
     pubmed_table_name = "pubmedRecords"
     pdb_table_name = "uniprotIdToPDB"
     return_email = get_email_from_env()
+
 
     with sqlite3.connect(database_name) as conn:
         cursor = conn.cursor()
@@ -51,9 +59,11 @@ def main():
                 protein_common_name = get_protein_common_name(pdb_id)
                 records =  CrossRefRecord.query_crossref(pdb_id, protein_common_name, rows= 100, email=return_email)
                 if records != None and len(records) > 0:
+                    upload_protein_and_versions_to_database(pdb_id, versions)
                     for record in records:
                         print(record)
-                        print("predicted_version: ", predict_protein_version(versions, record.created_date))
+                        print(f"Predicted version cited by DOI {record.doi} is {predict_protein_version(versions, record.created_date)} ")
+                        # upload_protein_version_citation_to_database()
                 else:
                     print(f"Failed to retrieve data from pdb ids")
 
@@ -88,14 +98,14 @@ def get_protein_common_name(pdb_id):
 def predict_protein_version(versions, date_of_citation):
     
     # Sort versions by date in ascending order
-    sorted_versions = sorted(versions, key=lambda v: v['date'])
+    sorted_versions = sorted(versions, key=lambda v: v['revision_date'])
     
     # Find the most recent version on or before the check_date
     # TODO: document the assumption that if the citation date is prior to the first version release date
     # that implies it used the first revision 
     last_version = sorted_versions[0]
     for version in sorted_versions:
-        version_release_date = version['date']
+        version_release_date = version['revision_date']
         if version_release_date <= date_of_citation:
             last_version = version
         else:
@@ -120,7 +130,7 @@ def get_protein_versions(pdb_id):
                 version_info = {
                     "major_version": version.get("major_revision", "N/A"),
                     "minor_version": version.get("minor_revision", "N/A"),
-                    "date": date
+                    "revision_date": date
                     # "description": version.get("description", "No description available")
                 }
                 version_details.append(version_info)
@@ -143,6 +153,22 @@ def get_email_from_env():
     else:
         print("Environment variable 'EMAIL' is not set.")
         return "example_email@notreal.org" 
+
+def upload_protein_and_versions_to_database(pdb_id, versions):
+    with openapi_client.ApiClient(configuration) as api_client:
+        # Create an instance of the API class
+        api_instance = openapi_client.ProteinApi(api_client)
+        version_entries = [VersionEntry.from_dict(version) for version in versions]
+        protein_entry = ProteinEntry.from_dict({"pdb_id": pdb_id, "versions": version_entries})
+
+        try:
+            # Get all proteins cited by this article
+            if protein_entry is not None:
+                api_response = api_instance.create_protein(protein_entry) # type: ignore            print("The response of CitationApi->get_proteins_cited:\n")
+                pprint(api_response)
+        except ApiException as e:
+            print("Exception when calling ProteinApi -> create_protein: %s\n" % e)
+
     
 
 
