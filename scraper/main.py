@@ -10,52 +10,52 @@ from records.crossref_record import CrossRefRecord
 import requests
 from datetime import datetime
 from dateutil import parser
-
-RESPONSE_EMAIL = "example@example.org"
-
+import os
 # To start with, my proteins of interest will be read in from my old homework database 
 
 def main():
     database_name = "./script2db.db"
-    # database_name = 'script2db.db'
     pubmed_table_name = "pubmedRecords"
     pdb_table_name = "uniprotIdToPDB"
+    return_email = get_email_from_env()
 
     with sqlite3.connect(database_name) as conn:
         cursor = conn.cursor()
         PubMedRecord.setup_tables(cursor, database_name, pubmed_table_name)
-        unique_pdb_ids = set([x[1] for x in UniProtRecord.read_from_pdb_table(cursor, pdb_table_name)])
-        for pdb_id in unique_pdb_ids:
-            print(pdb_id)
+        records = UniProtRecord.read_from_pdb_table(cursor, pdb_table_name)
+        if records is not None and len(records) > 0:
+            unique_pdb_ids = set([x[1] for x in records])
+            for pdb_id in unique_pdb_ids:
+                print(f"\n------------------------------\nRunning queries for {pdb_id}\n------------------------------")
 
-            ''''
-            Steps:
-            1. Get the protein id in question
-            2. Find out its common name
-            3. Get the revisions of the protein 
-            4. Make a query to cross ref requesting citations for both pdb id and common name 
-            5. Predict the version of the protein based on its date
-            6. Make a call to the database to create the protein,
-                6a. then its versions 
-                6b. then its citations 
-                # TODO: document assumption that most recent protein verison always used. 
-            '''
+                ''''
+                Steps:
+                1. Get the protein id in question
+                2. Find out its common name
+                3. Get the revisions of the protein 
+                4. Make a query to cross ref requesting citations for both pdb id and common name 
+                5. Predict the version of the protein based on its date
+                6. Make a call to the database to create the protein,
+                    6a. then its versions 
+                    6b. then its citations 
+                    # TODO: document assumption that most recent protein verison always used. 
+                '''
 
-            versions = get_protein_versions(pdb_id)
+                versions = get_protein_versions(pdb_id)
 
-            if versions:
-                print(f"Available versions for PDB ID {pdb_id}:")
-                for version in versions:
-                    print(version)
+                if versions:
+                    print(f"Available versions for PDB ID {pdb_id}:")
+                    for version in versions:
+                        print(version)
 
-            protein_common_name = get_protein_common_name(pdb_id)
-            records =  CrossRefRecord.query_crossref(pdb_id, protein_common_name, rows= 100, email=RESPONSE_EMAIL)
-            if records != None and len(records) > 0:
-                for record in records:
-                    print(record)
-                    print("predicted_version: ", predict_protein_version(versions, record.created_date))
-            else:
-                print(f"Failed to retrieve data from pdb ids")
+                protein_common_name = get_protein_common_name(pdb_id)
+                records =  CrossRefRecord.query_crossref(pdb_id, protein_common_name, rows= 100, email=return_email)
+                if records != None and len(records) > 0:
+                    for record in records:
+                        print(record)
+                        print("predicted_version: ", predict_protein_version(versions, record.created_date))
+                else:
+                    print(f"Failed to retrieve data from pdb ids")
 
 
 # # create an instance of the API class
@@ -79,6 +79,7 @@ def get_protein_common_name(pdb_id):
         data = response.json()
         # Retrieve the title or common name of the protein
         protein_name = data.get("struct", {}).get("title", "No name found")
+        print(f"Common protein name found to be '{protein_name}'.")
         return protein_name
     else:
         print(f"Error: PDB ID '{pdb_id}' not found.")
@@ -130,6 +131,18 @@ def get_protein_versions(pdb_id):
             return None
     except Exception as e:
         print(f"Failed to retrieve version date from pdb id: {pdb_id}")
+
+def get_email_from_env():
+    # This function exists almost entirely to prevent my real email from being on github. 
+    # Crossref prefers you send requests with your email attached to them, so I am setting 
+    # my email as an env var. 
+    # To run this script, set EMAIL in advance. 
+    email = os.getenv("EMAIL") 
+    if email:
+        return email
+    else:
+        print("Environment variable 'EMAIL' is not set.")
+        return "example_email@notreal.org" 
     
 
 

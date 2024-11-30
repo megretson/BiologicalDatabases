@@ -28,6 +28,7 @@ class CrossRefRecord:
     def attempt_to_find_publisher_contact(self):
         if self.publisher_url != None:
             try:
+                print(f"Attempting to scrape contact info from {self.publisher_url}")
                 response = requests.get(self.publisher_url, timeout=10)
                 if response.status_code != 200:
                     return None
@@ -39,6 +40,7 @@ class CrossRefRecord:
                 for a_tag in soup.find_all('a', href=True):
                     if "mailto:" in a_tag['href']:
                         contact_email = a_tag['href'].replace("mailto:", "")
+                        print(f"Found publisher contact email {contact_email}")
                         break
                 
                 return contact_email
@@ -106,6 +108,7 @@ class CrossRefRecord:
         pubmed_id = item.get('PMID', None)
         publisher = item.get('publisher', None)
         publisher_url = item.get('URL', None)  # Sometimes includes the publisher's page
+        print(f"Found citation {doi}")
         record = CrossRefRecord(title, doi, issn, pubmed_id,
                        pdb_id, protein_common_name, created_date, publisher, publisher_url)
         results.append(record)
