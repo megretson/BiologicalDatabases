@@ -65,6 +65,16 @@ public class VersionEntry  implements Persistable<String> {
   @OneToMany(mappedBy = "referencedProteinVersion")
   private List<Citation> citations = new ArrayList<>();
 
+  public VersionEntry() {
+    super();
+  }
+
+  public VersionEntry(String versionString){
+    VersionId version = VersionId.parseVersionString(versionString);
+    this.majorVersion = version.majorVersion;
+    this.minorVersion = version.minorVersion; 
+  }
+
   public VersionEntry protein(ProteinEntry protein) {
     this.protein = protein;
     return this;

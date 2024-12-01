@@ -16,7 +16,6 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import io.swagger.v3.oas.annotations.media.Schema;
 
-
 import java.util.*;
 import jakarta.annotation.Generated;
 import jakarta.persistence.CascadeType;
@@ -35,11 +34,8 @@ import jakarta.persistence.Transient;
 @Entity
 @JsonTypeName("Protein_Entry")
 @Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2024-11-03T20:23:08.570069800-06:00[America/Chicago]", comments = "Generator version: 7.9.0")
-public class ProteinEntry implements Persistable<String>{
+public class ProteinEntry implements Persistable<String> {
 
-  // @Id
-  // @GeneratedValue(strategy = GenerationType.AUTO)
-  // private Integer id; 
 
   @Id
   private String pdbId;
@@ -47,11 +43,15 @@ public class ProteinEntry implements Persistable<String>{
   @Transient
   private boolean update;
 
-  @OneToMany(mappedBy="protein", cascade = CascadeType.ALL)
+  @OneToMany(mappedBy = "protein", cascade = CascadeType.ALL)
   private List<VersionEntry> versions = new ArrayList<>();
 
   public ProteinEntry() {
     super();
+  }
+
+  public ProteinEntry(String pdbId) {
+    this.pdbId = pdbId;
   }
 
   /**
@@ -68,9 +68,10 @@ public class ProteinEntry implements Persistable<String>{
 
   /**
    * Get pdbId
+   * 
    * @return pdbId
    */
-  
+
   @Schema(name = "pdb_id", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
   @JsonProperty("pdb_id")
   public String getPdbId() {
@@ -96,9 +97,11 @@ public class ProteinEntry implements Persistable<String>{
 
   /**
    * Get versions
+   * 
    * @return versions
    */
-  @NotNull @Valid 
+  @NotNull
+  @Valid
   @Schema(name = "versions", requiredMode = Schema.RequiredMode.REQUIRED)
   @JsonProperty("versions")
   public List<@Valid VersionEntry> getVersions() {
@@ -131,7 +134,7 @@ public class ProteinEntry implements Persistable<String>{
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class ProteinEntry {\n");
-    // sb.append("    Id: ").append(toIndentedString(id)).append("\n");
+    // sb.append(" Id: ").append(toIndentedString(id)).append("\n");
     sb.append("    pdbId: ").append(toIndentedString(pdbId)).append("\n");
     sb.append("    versions: ").append(toIndentedString(versions)).append("\n");
     sb.append("}");
@@ -151,27 +154,25 @@ public class ProteinEntry implements Persistable<String>{
 
   public boolean isUpdate() {
     return this.update;
-}
+  }
 
-public void setUpdate(boolean update) {
+  public void setUpdate(boolean update) {
     this.update = update;
-}
+  }
 
-@Override
-public boolean isNew() {
+  @Override
+  public boolean isNew() {
     return !this.update;
-}
+  }
 
-@PrePersist
-@PostLoad
-void markUpdated() {
+  @PrePersist
+  @PostLoad
+  void markUpdated() {
     this.update = true;
-}
+  }
 
-
-@Override
-public String getId() {
-  return this.pdbId;
+  @Override
+  public String getId() {
+    return this.pdbId;
+  }
 }
-}
-

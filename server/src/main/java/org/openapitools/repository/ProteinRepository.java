@@ -12,14 +12,4 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ProteinRepository extends JpaRepository<ProteinEntry, String> {
 
-        // ProteinEntry saveProteinEntry(ProteinEntry protein);
-
-        // ProteinEntry updateProteinEntry(ProteinEntry protein);
-
-        // ProteinEntry fetchProteinEntry(String pdbId);
-
-        // void deleteProteinEntryById(String pdbId);
-
-        // List<ProteinEntry> fetchProteinEntries();
-
 }

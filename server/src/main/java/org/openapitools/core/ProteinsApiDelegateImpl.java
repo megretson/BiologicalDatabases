@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 
 @Component
 public class ProteinsApiDelegateImpl implements ProteinsApiDelegate {
@@ -37,6 +38,10 @@ public class ProteinsApiDelegateImpl implements ProteinsApiDelegate {
     private VersionRepository versionRepo;
 
     private static final Logger LOGGER = Logger.getLogger(ProteinsApiDelegateImpl.class.getName());
+    private static final String DOI_REGEX = "^10\\.\\d{4,9}/[-._;()/:A-Za-z0-9]+$";
+    private static final Pattern DOI_PATTERN = Pattern.compile(DOI_REGEX);
+    private static final String VERSION_REGEX = "^[1-9]\\d*\\.[1-9]\\d*$";
+    private static final Pattern VERSION_PATTERN = Pattern.compile(VERSION_REGEX);
 
     /**
      * POST /proteins : Enter a new protein into the database
@@ -48,6 +53,9 @@ public class ProteinsApiDelegateImpl implements ProteinsApiDelegate {
      */
     public ResponseEntity<ProteinEntry> createProtein(ProteinEntry proteinEntry) {
 
+        if (!validProtein(proteinEntry)) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
 
         LOGGER.log(Level.INFO, "Setting up protein object");
         LOGGER.log(Level.INFO, proteinEntry.toString());
@@ -59,46 +67,9 @@ public class ProteinsApiDelegateImpl implements ProteinsApiDelegate {
         LOGGER.log(Level.INFO, proteinEntry.toString());
         ProteinEntry protein = proteinRepo.saveAndFlush(proteinEntry);
         return ResponseEntity.ok(protein);
-
-
-        // proteinEntry.setVersions(new ArrayList<VersionEntry>());
-        // ProteinEntry protein = proteinRepo.save(proteinEntry);
-        // for (VersionEntry version : versions) {
-        //     version.setProtein(proteinEntry);
-        //     version.generateId(); 
-        //     LOGGER.log(Level.INFO, "Saving Version");
-        //     LOGGER.log(Level.INFO, version.toString());
-        //     versionRepo.saveAndFlush(version);
-        //     // try {
-        //     //     versionRepo.save(version);
-        //     // } catch (Exception e) {
-        //     //     LOGGER.log(Level.INFO, e.getMessage());
-        //     //     continue; 
-        //     // }
-            
-        // }
-        // protein.setVersions(versions);
-        // LOGGER.log(Level.INFO, proteinEntry.toString());
-        
-        // protein = proteinRepo.saveAndFlush(proteinEntry);
-        // return ResponseEntity.ok(protein);
-
-        // LOGGER.log(Level.INFO, "Setting up protein object");
-        // List<VersionEntry> versions = proteinEntry.getVersions();
-        // proteinEntry.setVersions(new ArrayList<VersionEntry>());
-        // proteinRepo.save(proteinEntry);
-        // for (VersionEntry version : versions) {
-        //     version.setProtein(proteinEntry);
-        //     // version.generateId(); 
-        //     LOGGER.log(Level.INFO, "Saving Version");
-        //     LOGGER.log(Level.INFO, version.toString());
-        //     versionRepo.save(version);
-        // }
-        // LOGGER.log(Level.INFO, proteinEntry.toString());
-        // proteinEntry.setVersions(versions);
-        // ProteinEntry protein = proteinRepo.save(proteinEntry);
-        // return ResponseEntity.ok(protein);
     }
+
+
 
     /**
      * POST /proteins/{pdb_id}/versions/{version_number}/citations : Enter a new
@@ -114,6 +85,10 @@ public class ProteinsApiDelegateImpl implements ProteinsApiDelegate {
     public ResponseEntity<Citation> createProteinCitation(String pdbId,
             String versionNumber,
             Citation citation) {
+
+        if (!validPDBIdFormat(pdbId) || !validVersionNumberFormat(versionNumber) || !validCitation(citation)) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
 
         Optional<ProteinEntry> fetchedProtein = proteinRepo.findById(pdbId);
         if (fetchedProtein.isEmpty()) {
@@ -142,6 +117,11 @@ public class ProteinsApiDelegateImpl implements ProteinsApiDelegate {
      * @see ProteinsApi#createProteinVersion
      */
     public ResponseEntity<ProteinEntry> createProteinVersion(String pdbId, VersionEntry version) {
+
+        if (!validPDBIdFormat(pdbId)) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
         Optional<ProteinEntry> fetchedProtein = proteinRepo.findById(pdbId);
         if (fetchedProtein.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -160,6 +140,8 @@ public class ProteinsApiDelegateImpl implements ProteinsApiDelegate {
 
     }
 
+
+
     /**
      * GET /proteins/{pdb_id} : Get the entry for this pdb_id
      *
@@ -171,6 +153,7 @@ public class ProteinsApiDelegateImpl implements ProteinsApiDelegate {
      */
     public ResponseEntity<ProteinEntry> getProtein(String pdbId,
             Integer limit) {
+                
         Optional<ProteinEntry> fetchedProtein = proteinRepo.findById(pdbId);
         if (fetchedProtein.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -250,4 +233,48 @@ public class ProteinsApiDelegateImpl implements ProteinsApiDelegate {
 
     }
 
+    private boolean validCitation(Citation citation) {
+        return validDOI(citation.getDoi());
+    }
+
+    private boolean validDOI(String doi){
+        if (doi == null) {
+            return false;
+        }
+        return DOI_PATTERN.matcher(doi).matches();
+    }
+
+    private boolean validVersionNumberFormat(String versionNumber) {
+        if (versionNumber == null) {
+            return false;
+        }
+        return VERSION_PATTERN.matcher(versionNumber).matches();
+    }
+
+    private boolean validPDBIdFormat(String pdbId) {
+        // Reference for pdb Id format: https://www.rcsb.org/docs/general-help/identifiers-in-pdb
+        // Could be altered to accept 8 letter codes, which is coming down the pipeline 
+        if (pdbId == null || pdbId.length() != 4) {
+            return false;
+        }
+
+        char firstChar = pdbId.charAt(0);
+        if (!Character.isDigit(firstChar)) {
+            return false;
+        }
+
+        for (int i = 1; i < 4; i++) {
+            char c = pdbId.charAt(i);
+            if (!Character.isLetterOrDigit(c)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+
+    private boolean validProtein(ProteinEntry proteinEntry) {
+        return validPDBIdFormat(proteinEntry.getPdbId()); 
+    }
 }

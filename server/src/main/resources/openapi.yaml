@@ -45,11 +45,11 @@ paths:
           description: unexpected error
       summary: List the pdb ids currently available in the database
       tags:
-      - proteins
+      - proteinss
       x-accepts:
       - application/json
       x-tags:
-      - tag: proteins
+      - tag: proteinss
     post:
       operationId: createProtein
       requestBody:
@@ -73,12 +73,12 @@ paths:
           description: unexpected error
       summary: Enter a new protein into the database
       tags:
-      - protein
+      - proteins
       x-content-type: application/json
       x-accepts:
       - application/json
       x-tags:
-      - tag: protein
+      - tag: proteins
   /proteins/{pdb_id}:
     get:
       operationId: getProtein
@@ -123,11 +123,11 @@ paths:
           description: unexpected error
       summary: Get the  entry for this pdb_id
       tags:
-      - proteins
+      - proteinss
       x-accepts:
       - application/json
       x-tags:
-      - tag: proteins
+      - tag: proteinss
   /proteins/{pdb_id}/citations:
     get:
       operationId: getProteinCitations
@@ -172,11 +172,11 @@ paths:
           description: unexpected error
       summary: Get the all citation entries for this pdb_id
       tags:
-      - proteins
+      - proteinss
       x-accepts:
       - application/json
       x-tags:
-      - tag: proteins
+      - tag: proteinss
   /proteins/{pdb_id}/versions/:
     post:
       operationId: createProteinVersion
@@ -210,11 +210,11 @@ paths:
           description: unexpected error
       summary: Create a new version of this pdb_id
       tags:
-      - proteins
+      - proteinss
       x-accepts:
       - application/json
       x-tags:
-      - tag: proteins
+      - tag: proteinss
   /proteins/{pdb_id}/versions/{version_number}/citations:
     get:
       operationId: getProteinCitationsByVersion
@@ -267,11 +267,11 @@ paths:
           description: unexpected error
       summary: Get the all citation entries for this pdb_id version
       tags:
-      - proteins
+      - proteinss
       x-accepts:
       - application/json
       x-tags:
-      - tag: proteins
+      - tag: proteinss
     post:
       operationId: createProteinCitation
       parameters:
@@ -312,12 +312,12 @@ paths:
           description: unexpected error
       summary: Enter a new protein citation
       tags:
-      - proteins
+      - proteinss
       x-content-type: application/json
       x-accepts:
       - application/json
       x-tags:
-      - tag: proteins
+      - tag: proteinss
   /citations/{issn}:
     get:
       operationId: getProteinsCited

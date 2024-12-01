@@ -13,16 +13,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface CitationRepository extends JpaRepository<Citation, String> {
 
-        // ProteinEntry saveProteinEntry(ProteinEntry protein);
-
-        // ProteinEntry updateProteinEntry(ProteinEntry protein);
-
-        // ProteinEntry fetchProteinEntry(String pdbId);
-
-        // void deleteProteinEntryById(String pdbId);
-
-        // List<ProteinEntry> fetchProteinEntries();
-
         List<Citation> findAllByReferencedProteinVersionAndReferencedProteinVersion(ProteinEntry protein, VersionEntry version); 
 
 }
