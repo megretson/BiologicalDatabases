@@ -100,7 +100,6 @@ class ProteinsApi:
             _headers=_headers,
             _host_index=_host_index
         )
-
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "Citation",
         }

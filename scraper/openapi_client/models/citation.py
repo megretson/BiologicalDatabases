@@ -21,6 +21,7 @@ from pydantic import BaseModel, ConfigDict, StrictBool, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
 from openapi_client.models.author import Author
 from openapi_client.models.version_entry import VersionEntry
+from openapi_client.models.protein_entry import ProteinEntry
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -106,7 +107,7 @@ class Citation(BaseModel):
             "doi": obj.get("doi"),
             "title": obj.get("title"),
             "pmd_id": obj.get("pmd_id"),
-            "referenced_protein_id": obj.get("referenced_protein_id"),
+            "referenced_protein_id": ProteinEntry.from_dict(obj.get("referenced_protein_id")).pdb_id if obj.get("referenced_protein_id") is not None else None,
             "referenced_protein_version": VersionEntry.from_dict(obj["referenced_protein_version"]) if obj.get("referenced_protein_version") is not None else None,
             "authors": [Author.from_dict(_item) for _item in obj["authors"]] if obj.get("authors") is not None else None,
             "version_presumed": obj.get("version_presumed"),

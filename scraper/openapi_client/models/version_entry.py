@@ -91,4 +91,6 @@ class VersionEntry(BaseModel):
         })
         return _obj
 
+    def to_formatted_string(self):
+        return f"{self.major_version}.{self.minor_version}"
 
